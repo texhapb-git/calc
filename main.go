@@ -7,10 +7,15 @@ import (
 	"strings"
 )
 
+var operations = map[string]func([]float64) float64{
+	"SUM": sum,
+	"AVG": avg,
+	"MED": median,
+}
+
 func main() {
 	fmt.Println("Калькулятор (AVG/SUM/MED)")
 
-	
 	for {
 		// Первый этап: ввод операции
 		fmt.Print("Введите операцию (AVG/SUM/MED): ")
@@ -20,7 +25,7 @@ func main() {
 		operation = strings.TrimSpace(operation)
 		operation = strings.ToUpper(operation)
 
-		if operation != "AVG" && operation != "SUM" && operation != "MED" {
+		if _, ok := operations[operation]; !ok {
 			fmt.Println("Ошибка: неподдерживаемая операция. Используйте AVG, SUM или MED")
 			continue
 		}
@@ -46,7 +51,7 @@ func main() {
 			continue
 		}
 		
-		result := calculate(operation, numbers)
+		result := operations[operation](numbers)
 		
 		fmt.Printf("Результат: %.2f\n", result)
 		
@@ -79,16 +84,10 @@ func parseNumbers(input string) ([]float64, error) {
 }
 
 func calculate(operation string, numbers []float64) float64 {
-	switch operation {
-	case "SUM":
-		return sum(numbers)
-	case "AVG":
-		return avg(numbers)
-	case "MED":
-		return median(numbers)
-	default:
-		return 0
+	if fn, ok := operations[operation]; ok {
+		return fn(numbers)
 	}
+	return 0
 }
 
 func sum(numbers []float64) float64 {
